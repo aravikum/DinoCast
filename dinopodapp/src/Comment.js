@@ -11,7 +11,10 @@ class Comment extends React.Component {
         isEditing: false,
         editedText: props.comment.text,
         edited: false,
+        textEntry: '',
+        parent_id: null,
         editor: '',
+        replyFormVisible: false,
       };
     }
     formatDate = (dateString) => {
@@ -54,7 +57,6 @@ class Comment extends React.Component {
         .catch((error) => {
           console.error('Error updating comment:', error);
         });
-  
 
     };
   
@@ -71,7 +73,6 @@ class Comment extends React.Component {
     };
     handleDeleteClick = () => {
         const { comment } = this.props;
-      
         // Display a confirmation dialog before deleting
         const confirmDelete = window.confirm('Are you sure you want to delete this comment?');
       
@@ -87,7 +88,56 @@ class Comment extends React.Component {
         } else {
           console.log('Deletion canceled');
         }
-      }
+    };
+
+    updateTextEntry = (event) => {
+      event.preventDefault();
+      // update textEntry to reflect user typing
+      this.setState({ textEntry: event.target.value });
+    };
+    
+
+    submitReply = (event) => {
+      const {textEntry, parent_id } = this.state;
+      console.log(parent_id);
+      event.preventDefault();
+      // should be passing in parent id here.
+      axios.post(`http://localhost:8000/comments/add/`, { text: textEntry, parent: parent_id, image : '' })
+        .then((res) => {
+          console.log('Comment posted:', res.data); // Log the response data
+          this.setState({ textEntry: '', replyFormVisible: false });
+          this.props.fetchComments(); // Fetch updated comments after adding the new one
+        })
+        .catch((err) => {
+          console.error('Error adding comment:', err);
+        });
+    };
+  
+    RenderReplyBox = () => {
+      const { textEntry, replyFormVisible } = this.state;
+      if (!replyFormVisible) return null; // Don't render form if it's not visible
+      return (
+        <div className="CommentBox">
+          <form className="comment-form" onSubmit={this.submitReply}>
+            <input type="text" value={textEntry} 
+              onChange={this.updateTextEntry} 
+              placeholder="Add your Reply Here" style={{ width: '300px' }} />
+            <br />
+            <button type="submit">Post Comment</button>
+          </form>
+        </div>
+      );
+    };
+    
+    handleReplyClick = () => {
+      const { comment } = this.props;
+      console.log(comment.id);
+      this.setState({ parent_id: comment.id, replyFormVisible: true }, () => {
+        console.log(this.state.parent_id); // This will log the updated state
+        return this.RenderReplyBox();
+      });  
+    };
+    
 
     RenderLikes = (likes) => {
         if (likes === 1) {
@@ -110,37 +160,46 @@ class Comment extends React.Component {
       const humanReadableDate = this.formatDate(comment.date);
   
       return (
-        <div className='Comment'>
-          {isEditing ? (
-            <>
-              <textarea value={editedText} onChange={this.handleInputChange} />
-              <button onClick={this.handleSaveClick}>Save</button>
-              <button onClick={this.handleCancelClick}>Cancel</button>
-            </>
-          ) : (
-            <>
-              {comment.image && (
-                    <img src={comment.image} alt="alt" width="420" height="420" />
-                  )}
-                < br />
-                <h4>{comment.text} </h4> 
-                
-                <br />
-                <cite title="Contents">
-                    - {comment.author}
-                    {edited ? ' (edited by ' + editor + ')' : ''}
-                </cite>
-                <br />
-                Posted {humanReadableDate}
+        <div>
+          <div className='CommentContainer'>
             
-                {this.RenderLikes(comment.likes)}
-                <div>
-                    <button onClick={this.handleEditClick} className="btn">Edit</button>
-                    <button onClick={this.handleDeleteClick} className="btn">Delete</button>
-                </div>
+            {isEditing ? (
+              <>
+                <textarea value={editedText} onChange={this.handleInputChange} />
+                <button onClick={this.handleSaveClick}>Save</button>
+                <button onClick={this.handleCancelClick}>Cancel</button>
+              </>
+            ) : (
+              <>
+                {comment.image && (
+                      <img src={comment.image} alt="alt" width="420" height="420" />
+                    )}
+                  < br />
+                  <h4>{comment.text} </h4> 
+                  
+                  <br />
+                  <cite title="Contents">
+                      - {comment.author}
+                      {edited ? ' (edited by ' + editor + ')' : ''}
+                  </cite>
+                  <br />
+                  Posted {humanReadableDate}
+              
+                  {this.RenderLikes(comment.likes)}
+                  <div>
+                      <button onClick={this.handleEditClick} className="btn">Edit</button>
+                      <button onClick={this.handleDeleteClick} className="btn">Delete</button>
+                      <button onClick={this.handleReplyClick} className="btn">Reply</button>
+                  </div>
+            
 
-            </>
-          )}
+              </>
+            )}
+
+          </div>
+          <div className='comment-reply-box'>
+              {this.RenderReplyBox()}
+          </div>
         </div>
       );
     }

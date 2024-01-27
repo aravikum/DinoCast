@@ -32,10 +32,20 @@ def add_comment(request):
         data = json.loads(request.body)
         new_text = data.get('text')
         img_url = data.get('image')
+        parent_id = data.get('parent')
+        parent_comment = None
+        if parent_id is not None:
+            try:
+                parent_comment = Comment.objects.get(id=parent_id)
+            except Comment.DoesNotExist:
+                return JsonResponse({'error': f'Parent comment with id {parent_id} does not exist'}, status=400)
+
+       
+
         if new_text:
             last_comment = Comment.objects.aggregate(max_id=Max('id'))
             new_id = last_comment['max_id'] + 1 if last_comment['max_id'] is not None else 1
-            new_comment = Comment(id=new_id,author=admin_user, text=new_text, date=timezone.now(), image=img_url)
+            new_comment = Comment(id=new_id,author=admin_user, text=new_text, date=timezone.now(), image=img_url, parent=parent_comment)
 
             try:
                 new_comment.save()

@@ -32,9 +32,10 @@ class App extends React.Component {
         
 
   submitComment = (event) => {
-    const {textEntry, img_url } = this.state;
+    const {textEntry, img_url, parent } = this.state;
     event.preventDefault();
-    axios.post(`http://localhost:8000/comments/add/`, { text: textEntry, image: img_url })
+    // should be passing in parent id here.
+    axios.post(`http://localhost:8000/comments/add/`, { text: textEntry, image: img_url, parent: null })
       .then((res) => {
         console.log('Comment posted:', res.data); // Log the response data
         this.setState({ textEntry: '', img_url: null});
@@ -102,6 +103,7 @@ class App extends React.Component {
                 comment={{
                   id: comment.id,
                   author: comment.author,
+                  parent_id: comment.parent_id,
                   text: comment.text,
                   image: comment.image,
                   date: comment.date,

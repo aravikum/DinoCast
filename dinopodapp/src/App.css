@@ -37,10 +37,10 @@
   }
 }
 
-.Comment {
+.CommentContainer {
   /* Style for each comment */
   border: 1px solid #ccc; /* Example border style */
-  padding: 10px; /* Add padding for spacing */
+  padding: 5px; /* Add padding for spacing */
   margin-bottom: 10px; /* Add margin between comments */
   border: 1px solid;
   margin-left: auto;
@@ -49,4 +49,10 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
+
+.comment-reply-box {
+  margin-left: 155px;
+}
+
