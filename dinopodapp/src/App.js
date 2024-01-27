@@ -77,33 +77,51 @@ class App extends React.Component {
   };
   
   render() { 
-    //need to add threaded functionality
     const { comments } = this.state;
-    console.log(comments);
-    return( 
-      <div >
-
-            {comments.map((comment, id) =>  ( 
-              
-            <div key={id}> 
-            <Comment fetchComments= {this.fetchComments}
-              comment={{
-                id: comment.id,
-                author: comment.author,
-                text: comment.text,
-                image: comment.image,
-                date: comment.date,
-                likes: comment.likes
-              }}
-            />
-            </div> 
-            )
-             
-        )}
-        {this.RenderCommentBox()} 
-      </div> 
-      ); 
-  } 
+    const commentsMap = {}; // Map comments by their IDs
+    //console.log(comments);
+    // Group comments by their parent IDs
+    comments.forEach(comment => {
+      if (!commentsMap[comment.parent_id]) {
+        commentsMap[comment.parent_id] = [];
+      }
+      commentsMap[comment.parent_id].push(comment);
+    });
+    console.log(commentsMap);
+  
+    const renderComments = parentId => {
+      if (!commentsMap[parentId]) {
+        return null;
+      }
+      return (
+        <ul>
+          {commentsMap[parentId].map((comment, index) => (
+            <li key={index}>
+              <Comment
+                fetchComments={this.fetchComments}
+                comment={{
+                  id: comment.id,
+                  author: comment.author,
+                  text: comment.text,
+                  image: comment.image,
+                  date: comment.date,
+                  likes: comment.likes
+                }}
+              />
+              {renderComments(comment.id)} {/* Recursively render children */}
+            </li>
+          ))}
+        </ul>
+      );
+    };
+  
+    return (
+      <div>
+        {renderComments(null)} {/* Render comments with no parent ID (top-level comments) */}
+        {this.RenderCommentBox()}
+      </div>
+    );
+  }
 } 
   
 export default App;
