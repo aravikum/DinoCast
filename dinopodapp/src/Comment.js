@@ -1,6 +1,7 @@
 import React from 'react'; 
 import axios from 'axios'; 
 import './style.css';
+import LikeButton from './like-button';
 
 class Comment extends React.Component {
 
@@ -140,6 +141,7 @@ class Comment extends React.Component {
     
 
     RenderLikes = (likes) => {
+        const { comment } = this.props;
         if (likes === 1) {
           return (
             <p>1 like</p>
@@ -150,7 +152,9 @@ class Comment extends React.Component {
             {likes}
             {' '}
             likes
+            <LikeButton likes={likes} comment_id={comment.id}/>
           </p>
+         
         );
     };
   

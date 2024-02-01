@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios'; 
 import './App.css';
 import Comment from './Comment.js';
+
   
 class App extends React.Component { 
   
@@ -32,7 +33,7 @@ class App extends React.Component {
         
 
   submitComment = (event) => {
-    const {textEntry, img_url, parent } = this.state;
+    const {textEntry, img_url} = this.state;
     event.preventDefault();
     // should be passing in parent id here.
     axios.post(`http://localhost:8000/comments/add/`, { text: textEntry, image: img_url, parent: null })
@@ -97,7 +98,7 @@ class App extends React.Component {
       return (
         <ul>
           {commentsMap[parentId].map((comment, index) => (
-            <li key={index}>
+            <li key={index} style={{ paddingLeft: "25px" }}>
               <Comment
                 fetchComments={this.fetchComments}
                 comment={{
