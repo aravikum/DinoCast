@@ -10,6 +10,9 @@ from django.db.models import Max
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
 
+@csrf_exempt
+def test_endpoint(request, comment_id):
+    return JsonResponse({'message': 'This endpoint is working lol'})
 
 @csrf_exempt
 def like_comment(request, comment_id):
@@ -23,7 +26,8 @@ def like_comment(request, comment_id):
         try:
             comment = Comment.objects.get(pk=comment_id)
             if comment.likes > 0:
-                comment.update(likes=F('likes') - 1)
+                comment.likes=F('likes') - 1
+                comment.save()
             return JsonResponse({'message': 'Like removed successfully'})
         except Comment.DoesNotExist:
             return JsonResponse({'error': 'Comment not found'}, status=404)

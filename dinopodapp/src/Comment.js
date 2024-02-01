@@ -142,16 +142,8 @@ class Comment extends React.Component {
 
     RenderLikes = (likes) => {
         const { comment } = this.props;
-        if (likes === 1) {
-          return (
-            <p>1 like</p>
-          );
-        }
         return (
           <p>
-            {likes}
-            {' '}
-            likes
             <LikeButton likes={likes} comment_id={comment.id}/>
           </p>
          
